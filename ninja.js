@@ -3,6 +3,25 @@
     var Ninja = function (options) {
         return new Ninja.init(options);
     };
+    
+    // css options
+    var ninjaCSS = {
+        // menu
+        ninjaMenu: '.ninja-menu',
+        ninjaMenuTitle: '.ninja-menu-title',
+        ninjaMenuList: '.ninja-menu-list',
+        
+        // message chat box
+        ninjaMessage: '.ninja-message',
+        
+        // avatar
+        ninjaAvatar: '.ninja-avatar'
+    };
+    
+    // templates
+    var ninjaTemplates = {
+        ninjaMenu: 'templates/menu.partial.html'
+    };
 
     // conversations that ninja can talk
     var conversations = {
@@ -33,6 +52,20 @@
     // }
 
     Ninja.prototype = {
+        // ninja config settings
+        ninjaSettings: {
+            menu: {
+                templateUrl: ninjaTemplates.ninjaMenu,
+                title: "Action"
+            },
+            message: {
+                
+            },
+            avatar: {
+                
+            }
+        },
+    
         // getters and setters for ninja properties
         getName: function () {
             return this.name;
@@ -64,29 +97,46 @@
         // setup for ninja menu
         setupMenu: function (menu) {
             var self = this;
-            // setup menu
             
+            // setup menu
             if (!$.isEmptyObject(menu)) {
                 if (!(this.placeholder instanceof $)) {
                     return;
                 }
                 
-                var menuContainer = $('.menu', this.placeholder);
-                    $.each(menu, function(key, value) {
-                        if (key && value) {
-                            var itemButton = $('<input type="button" />');
-                            itemButton.val(key);
+                var menuContainer = $(ninjaCSS.ninjaMenu, this.placeholder);
+                if (!menuContainer || !this.ninjaSettings.menu.templateUrl) {
+                    throw "cannot setup ninja menu";
+                    return;
+                }
+                
+                $(menuContainer).load(this.ninjaSettings.menu.templateUrl, function() {
+                    var menuListContainer = $(ninjaCSS.ninjaMenuList, menuContainer);
+                    var menuTitleContainer = $(ninjaCSS.ninjaMenuTitle, menuContainer);
+                    if (menuTitleContainer && self.ninjaSettings.menu.title) {
+                        menuTitleContainer.html(self.ninjaSettings.menu.title);
+                    }
+                    $.each(menu, function(index, value) {
+                        if (value) {
+                            var menuItemList = $('<li></li>');
+                            var menuItem = $('<a href="#"></a>');
+                            menuItemList.append(menuItem);
+                            menuItem.html(value.title);
+                            if (typeof value.css == 'string') {
+                                menuItem.addClass(value.css);
+                            }
                             if (typeof value.action === 'function') {
-                                itemButton.click(value.action);
+                                menuItem.click(value.action);
                             }
                             else if (typeof value.talk === 'string') {
-                                itemButton.click(function () {
+                                menuItem.click(function () {
                                     self.talk(value.talk);
                                 });
                             }
-                            menuContainer.append(itemButton);
+                            menuListContainer.append(menuItemList);
                         }
                     });
+                });
             }
             
             return this;
@@ -95,6 +145,10 @@
         // configs for ninja settings
         config: function (settings) {
             //var self = this;
+            
+            if (settings.menu) {
+                $.extend(this.ninjaSettings.menu, settings.menu);
+            }
             
             return this;
             
@@ -137,7 +191,7 @@
         say: function (message) {
             var messageBox;
             if (this.placeholder instanceof $) {
-                messageBox = $('.message', this.placeholder);
+                messageBox = $(ninjaCSS.ninjaMessage, this.placeholder);
             }
 
             if (messageBox) {
@@ -160,22 +214,29 @@
     // initialization method for ninja
     Ninja.init = function (options) {
         var defaultOptions = {
-            name: 'Ninja',
-            language: 'en',
-            menu: {
-                "Action": {
-                    "action": function () {
+            name: "Ninja",
+            language: "en",
+            menu: [
+                {
+                    title: "Test",
+                    action: function () {
                         alert('test');
                     }
                 },
-                "Greet": {
-                    "talk": "greeting",
+                {
+                    title: "Greet",
+                    talk: "greeting"
                 },
-                "Hide": {
-                    "talk": "farewell"
+                {
+                    title: "Bye",
+                    talk: "farewell"
                 }
-            },
+            ],
             config: {
+                menu: {
+                    templateUrl: ninjaTemplates.ninjaMenu,
+                    title: "Ninja"
+                }
             }
         };
 
