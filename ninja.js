@@ -21,13 +21,16 @@
     };
     
     // helper functions
-    function loadFile (fileName, format, successCallback, failCallback) {
-        return $.getJSON(fileName, {
-            format: format
-        })
-        .success(successCallback)
-        .fail(failCallback);
+    function createMenu () {
     }
+    
+    // function loadFile (fileName, format, successCallback, failCallback) {
+    //     return $.getJSON(fileName, {
+    //         format: format
+    //     })
+    //     .success(successCallback)
+    //     .fail(failCallback);
+    // }
 
     Ninja.prototype = {
         // getters and setters for ninja properties
@@ -48,7 +51,7 @@
         getPlaceholder: function () {
             return this.placeholder;
         },
-        setPlaceholder: function(newPlaceholder) {
+        setPlaceholder: function (newPlaceholder) {
             if (newPlaceholder instanceof $) {
                 this.placeholder = newPlaceholder;
             }
@@ -58,30 +61,40 @@
             return this;
         },
         
-        // configs for ninja settings
-        config: function(settings) {
+        // setup for ninja menu
+        setupMenu: function (menu) {
             var self = this;
-            
             // setup menu
-            if (!$.isEmptyObject(settings.menu)) {
+            
+            if (!$.isEmptyObject(menu)) {
                 if (!(this.placeholder instanceof $)) {
                     return;
                 }
                 
-                var menu = $('.menu', this.placeholder);
-                    $.each(settings.menu, function(key, value) {
+                var menuContainer = $('.menu', this.placeholder);
+                    $.each(menu, function(key, value) {
                         if (key && value) {
-                            var itemButton = $(value, menu) 
-                            if (itemButton.length === 0)
-                                itemButton = $('<input type="button" />');
+                            var itemButton = $('<input type="button" />');
                             itemButton.val(key);
-                            itemButton.click(function () {
-                                self.talk(value);
-                            });
-                            menu.append(itemButton)
+                            if (typeof value.action === 'function') {
+                                itemButton.click(value.action);
+                            }
+                            else if (typeof value.talk === 'string') {
+                                itemButton.click(function () {
+                                    self.talk(value.talk);
+                                });
+                            }
+                            menuContainer.append(itemButton);
                         }
                     });
             }
+            
+            return this;
+        },
+        
+        // configs for ninja settings
+        config: function (settings) {
+            //var self = this;
             
             return this;
             
@@ -149,11 +162,20 @@
         var defaultOptions = {
             name: 'Ninja',
             language: 'en',
-            config: {
-                menu: {
-                    "Greet": "greeting",
-                    "Hide": "farewell"                    
+            menu: {
+                "Action": {
+                    "action": function () {
+                        alert('test');
+                    }
+                },
+                "Greet": {
+                    "talk": "greeting",
+                },
+                "Hide": {
+                    "talk": "farewell"
                 }
+            },
+            config: {
             }
         };
 
@@ -162,6 +184,7 @@
         var self = this;
         self.setPlaceholder(defaultOptions.placeholder)
             .config(defaultOptions.config)
+            .setupMenu(defaultOptions.menu)
             .setLanguage(defaultOptions.language)
             .setName(defaultOptions.name);
             
