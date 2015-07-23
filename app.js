@@ -1,4 +1,5 @@
 var n = N$({
     name: 'Ichigo',
-    placeholder: '#ninja'
+    placeholder: '#ninja',
+    language: 'jp'
 });

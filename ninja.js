@@ -126,11 +126,23 @@
                                 menuItem.addClass(value.css);
                             }
                             if (typeof value.action === 'function') {
-                                menuItem.click(value.action);
+                                menuItem.click(function () {
+                                    value.action(self);
+                                });
                             }
                             else if (typeof value.talk === 'string') {
                                 menuItem.click(function () {
                                     self.talk(value.talk);
+                                });
+                            }
+                            else if (typeof value.rotate === 'object') {
+                                menuItem.click(function () {
+                                    self.rotate(value.rotate);
+                                });
+                            }
+                            else if (typeof value.animate === 'object') {
+                                menuItem.click(function () {
+                                    self.animate(value.animate);
                                 });
                             }
                             menuListContainer.append(menuItemList);
@@ -203,6 +215,22 @@
 
             return this;
         },
+        rotate: function (rotateParams) {
+            var elem = $(ninjaCSS.ninjaAvatar, this.placeholder.selector);
+            $({deg: 0}).animate({deg: rotateParams.angle || 360}, {
+                duration: rotateParams.duration || 1000,
+                easing: rotateParams.easing || 'linear',
+                step: function(now) {
+                    elem.css({
+                        transform: 'rotate(' + now + 'deg)'
+                    });
+                }
+            });
+        },
+        animate: function (animateParams) {
+            var elem = $(ninjaCSS.ninjaAvatar, this.placeholder.selector);
+            elem.animate(animateParams.properties, animateParams.duration, animateParams.easing, animateParams.complete);
+        },
         disappear: function () {
             this.placeholder.hide();
         },
@@ -219,7 +247,7 @@
             menu: [
                 {
                     title: "Test",
-                    action: function () {
+                    action: function (self) {
                         alert('test');
                     }
                 },
@@ -228,8 +256,29 @@
                     talk: "greeting"
                 },
                 {
-                    title: "Bye",
+                    title: "Say Bye",
                     talk: "farewell"
+                },
+                {
+                    title: "Rotate",
+                    rotate: {
+                        duration: 2000,
+                        angle: 360,
+                        easing: "swing"
+                    }
+                },
+                {
+                    title: "Cloak",
+                    action: function (self) {
+                        self.animate({
+                            properties: {
+                                opacity: 0.25,
+                                left: "+=50"
+                            },
+                            duration: 3000
+                        });
+                        self.say("You don't see me");
+                    }
                 }
             ],
             config: {
