@@ -147,30 +147,11 @@
         
         // configs for ninja settings
         config: function (settings) {
-            //var self = this;
-            
             if (settings.menu) {
                 $.extend(this.ninjaSettings.menu, settings.menu);
             }
             
             return this;
-            
-            // var deferred;
-            // if (!conversations[this.language]) {
-            //     deferred = loadFile('lang/' + this.language + '.json', 'json', function (data) {
-            //         conversations[self.language] = data;
-            //     })
-            //     .then(function () {
-            //         try {
-            //             self.validateLanguage();
-            //         }
-            //         catch (ex) {
-            //             self.say(ex);
-            //             self.language = 'en';
-            //         }
-            //     });
-            // }
-            // return deferred;
         },
 
         // validation for ninja settings
@@ -252,6 +233,13 @@
             .setupMenu(defaultOptions.menu)
             .setLanguage(defaultOptions.language)
             .setName(defaultOptions.name);
+        
+        // initialize all plugins
+        if (self.plugins) {
+            for (var p in self.plugins) {
+                self.plugins[p].init && typeof self.plugins[p].init === 'function' && self.plugins[p].init(); 
+            }
+        }
     };
     
     Ninja.plugins = {

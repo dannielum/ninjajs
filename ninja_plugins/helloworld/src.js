@@ -5,9 +5,12 @@
 	
 	Ninja.plugins.register('ninja.helloworld', {
 		init: function () {
+			// initialization function for plugin
+			this.message = 'My first hello world plugin!'
 		},
+		message: '',
 		test: function () {
-			alert('my first plugin!');
+			alert(this.message);
 		}
 	})		
 }());
