@@ -39,19 +39,10 @@
         }
     };
     
-    // helper functions
-    function createMenu () {
-    }
-    
-    // function loadFile (fileName, format, successCallback, failCallback) {
-    //     return $.getJSON(fileName, {
-    //         format: format
-    //     })
-    //     .success(successCallback)
-    //     .fail(failCallback);
-    // }
-
     Ninja.prototype = {
+        // ninja plugins
+        plugins: {},
+        
         // ninja config settings
         ninjaSettings: {
             menu: {
@@ -244,43 +235,7 @@
         var defaultOptions = {
             name: "Ninja",
             language: "en",
-            menu: [
-                {
-                    title: "Test",
-                    action: function (self) {
-                        alert('test');
-                    }
-                },
-                {
-                    title: "Greet",
-                    talk: "greeting"
-                },
-                {
-                    title: "Say Bye",
-                    talk: "farewell"
-                },
-                {
-                    title: "Rotate",
-                    rotate: {
-                        duration: 2000,
-                        angle: 360,
-                        easing: "swing"
-                    }
-                },
-                {
-                    title: "Cloak",
-                    action: function (self) {
-                        self.animate({
-                            properties: {
-                                opacity: 0.25,
-                                left: "+=50"
-                            },
-                            duration: 3000
-                        });
-                        self.say("You don't see me");
-                    }
-                }
-            ],
+            menu: [],
             config: {
                 menu: {
                     templateUrl: ninjaTemplates.ninjaMenu,
@@ -297,7 +252,22 @@
             .setupMenu(defaultOptions.menu)
             .setLanguage(defaultOptions.language)
             .setName(defaultOptions.name);
+    };
+    
+    Ninja.plugins = {
+        register: function (name, pluginObj) {
+            if (typeof name !== 'string') {
+                throw 'plugin name is invalid';
+                return;
+            }
             
+            if (typeof pluginObj !== 'object') {
+                throw 'invalid plugin';
+                return;
+            }
+                
+            Ninja.prototype.plugins[name] = pluginObj;
+        }
     };
 
     Ninja.init.prototype = Ninja.prototype;
